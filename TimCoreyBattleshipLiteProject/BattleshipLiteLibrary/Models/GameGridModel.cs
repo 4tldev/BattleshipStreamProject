@@ -1,5 +1,7 @@
-﻿using System;
+﻿using BattleshipLiteLibrary.StaticClasses;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Dynamic;
 using System.Linq;
 using System.Net.Http.Headers;
@@ -11,12 +13,21 @@ namespace BattleshipLiteLibrary.Models
 {
     public class GameGridModel
     {
+        public enum GridPositionState 
+        {
+            hit,
+            miss,
+            hidden
+        }
+
+        public GridPositionState PositionState { get; set; }
         public int GridXLength { get; set; }
         public int GridYLength { get; set; }
-        public List<GameGridModel> AvailableGridPositions { get; set; } = new List<GameGridModel>();
+        // public List<GameGridModel> AvailableGridPositions { get; set; } = new List<GameGridModel>();
         public Dictionary<int, GameGridModel> PositionDict { get; set; } = new Dictionary<int, GameGridModel>();
         private int CurrentX { get; set; }
         private int CurrentY { get; set; }
+        public string GridValue { get; set; }
 
         private GameGridModel()
         {
@@ -25,60 +36,78 @@ namespace BattleshipLiteLibrary.Models
 
         public GameGridModel(int xLength, int yLength)
         {
-            PopulateGrid(xLength, yLength);
+            GridXLength = xLength;
+            GridYLength = yLength;
+
+            PopulateGrid(GridXLength, GridYLength);
         }
 
         public void PopulateGrid(int xLength, int yLength) 
         {
-            int dictIndexer = 0; // using this for key for our PositionDict
-            int x = 0;
-            
-            for (; x < xLength; x++)
+            int posDictKey = 0; // using this for key for our PositionDict
+
+            // ASSIGNS X&Y COORDS TO EACH OBJECT IN DICT
+            for (int y = 0; y < yLength; y++)
             {
-                this.CurrentX = x;
-                for (int y = 0; y < yLength; y++)
+                char yLetter = LawlzUtils.Alphabet[y];
+
+                for (int x = 0; x < xLength; x++)
                 {
                     GameGridModel gameGrid = new GameGridModel();
                     gameGrid.CurrentX = x;
                     gameGrid.CurrentY = y;
-                    this.CurrentY = y;
-                    
-                    this.AvailableGridPositions.Add(gameGrid);
-                    this.PositionDict.Add(dictIndexer, gameGrid);
+                    gameGrid.PositionState = GridPositionState.hidden;
 
-                    dictIndexer++;
+                    gameGrid.GridValue = $"{yLetter}{x + 1}";
+
+                    PositionDict.Add(posDictKey, gameGrid);
+
+                    posDictKey++;
                 }
             }
 
-            //Method for testing values in PositionDict
 
-            foreach (KeyValuePair<int, GameGridModel> g in this.PositionDict)
-            {
-                Console.WriteLine($"Key: {g.Key}");
-                Console.WriteLine($"X: {g.Value.CurrentX}");
-                Console.WriteLine($"Y: {g.Value.CurrentY}");
-            }
+            //foreach (var g in this.PositionDict)
+            //{
+            //    Console.WriteLine($"Pos: {g.Value.GridValue}");
+            //    Console.WriteLine($"X: {g.Value.CurrentX}");
+            //    Console.WriteLine($"Y: {g.Value.CurrentY}");
+            //    Console.WriteLine($"{g.Value.PositionState}");
+            //}
 
         }
 
-        public void DisplayGrid() 
+        public void DisplayGrid()
         {
-            //Find out how many items are in our List/Dict
-            //Find out number of rows YLength
-            //Find out number of Columns XLength
             /* Display Format
              * A1, A2, A3, A4, A5,
              * B1, B2, B3, B4, B5,
              * C1, C2, C3, C4, C5,
              * D1, D2, D3, D4, D5,
              * E1, E2, E3, E4, E5, */
+            
+            int xLength = 0;
 
+            foreach (var dictKey in PositionDict)
+            {
+                if (xLength < GridXLength)
+                {
+                    Console.Write($"{dictKey.Value.GridValue}, ");
+                }
+                else
+                {
+                    xLength = 0;
+                    Console.WriteLine();
+                    Console.Write($"{dictKey.Value.GridValue}, ");
+                }
 
-
-
-
+                xLength++;
+            }
 
 
         }
+
+
+
     }
 }

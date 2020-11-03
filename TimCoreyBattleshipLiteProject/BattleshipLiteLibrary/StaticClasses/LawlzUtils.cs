@@ -10,7 +10,10 @@ namespace BattleshipLiteLibrary.StaticClasses
     public static class LawlzUtils
     {
 
+        public static int WindowWidth = 75;
+        public static int WindowHeight = 250;
 
+        public static string Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
         // Prints to the council one character at a time
         public static void SlowWrite(string message)
